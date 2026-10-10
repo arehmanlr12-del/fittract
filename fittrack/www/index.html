@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FitTrack - Khana, Steps, Gym</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f5;--card:#fff;--ink:#14213d;--mute:#6b7690;--acc:#2f4bff;--sun:#ffb703;--ok:#12a372;--line:#dfe4ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1524;--card:#18213a;--ink:#eef1f8;--mute:#93a0bd;--acc:#6f86ff;--line:#2a3556}}
+:root[data-theme="dark"]{--bg:#0f1524;--card:#18213a;--ink:#eef1f8;--mute:#93a0bd;--acc:#6f86ff;--line:#2a3556}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;max-width:520px;margin:0 auto;padding:16px 14px 40px}
+h1{font-size:22px;font-weight:800;margin:4px 0 14px}h2{font-size:15px;font-weight:800;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.row{display:flex;gap:10px;align-items:center}.sp{justify-content:space-between}
+.mute{color:var(--mute);font-size:13px}
+.ring{position:relative;width:132px;height:132px;flex:none}
+.ring svg{transform:rotate(-90deg)}.ring .t{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.big{font-size:28px;font-weight:800;line-height:1}
+button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:11px 14px;background:var(--acc);color:#fff;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button.mic{width:100%;padding:16px;font-size:16px}button.mic.on{background:#d62839;animation:p 1s infinite}
+@keyframes p{50%{opacity:.7}}@media(prefers-reduced-motion:reduce){button.mic.on{animation:none}}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.list>div{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--line)}
+.list>div:first-child{border-top:0}.x{background:none;color:var(--mute);padding:0 6px}
+.banner{background:var(--sun);color:#14213d;border-radius:14px;padding:12px 14px;margin-bottom:12px;font-weight:600;display:none}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:var(--sun);width:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+</style></head><body>
+<h1>FitTrack 💪</h1>
+<div class="banner" id="banner"></div>
+
+<div class="card row">
+  <div class="ring"><svg width="132" height="132" viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="var(--line)" stroke-width="12"/><circle id="arc" cx="66" cy="66" r="56" fill="none" stroke="var(--acc)" stroke-width="12" stroke-linecap="round" stroke-dasharray="352" stroke-dashoffset="352"/></svg>
+  <div class="t"><div class="big" id="kc">0</div><div class="mute" id="kleft"></div></div></div>
+  <div style="flex:1"><div class="mute">Aaj ka goal (kcal)</div><input id="goal" type="number" inputmode="numeric"><div class="mute" style="margin-top:8px">Gym <label><input type="checkbox" id="gym" style="width:auto"> kar liya</label></div></div>
+</div>
+
+<div class="card">
+  <h2>Mera jism</h2>
+  <div class="g2"><div><div class="mute">Height (cm)</div><input id="h" type="number" inputmode="decimal"></div><div><div class="mute">Weight (kg)</div><input id="w" type="number" inputmode="decimal"></div></div>
+  <div class="g2" style="margin-top:8px"><div><div class="mute">Umar</div><input id="age" type="number" inputmode="numeric"></div><div><div class="mute">Gender</div><select id="sex"><option value="m">Male</option><option value="f">Female</option></select></div></div>
+  <button id="bsave" style="width:100%;margin-top:10px">Save karo</button>
+  <div style="margin-top:10px"><b id="bmi"></b> <span class="mute" id="wd"></span></div>
+  <div class="list" id="wl"></div>
+  <div class="row" style="margin-top:10px"><select id="aim"><option value="-400">Weight kam karna</option><option value="0">Same rakhna</option><option value="300">Muscle/weight badhana</option></select><button class="ghost" id="gsug">Calorie goal batao</button></div>
+  <div class="mute" style="margin-top:6px">Calorie goal sirf andaza hai. Weight badalne par naya record save hota hai.</div>
+</div>
+
+<div class="card">
+  <h2>Voice se khana likho</h2>
+  <button class="mic" id="mic">🎙️ Bolo: "do roti aur daal"</button>
+  <div class="row" style="margin-top:10px"><input id="txt" placeholder="ya yahan type karo: 2 anda, 1 chai"><button id="add">Add</button></div>
+  <div class="row" style="margin-top:8px"><span class="mute">Voice language</span><select id="lang" style="width:auto"><option value="ur-PK">Urdu</option><option value="en-IN">English</option></select></div>
+  <div id="pend"></div>
+  <div class="mute" id="vmsg" style="margin-top:6px"></div>
+</div>
+
+<div class="card"><h2>Aaj kya khaya</h2><div class="list" id="foods"></div><div class="mute" id="empty">Abhi kuch add nahi hua. Mic dabao aur bolo.</div></div>
+
+<div class="card">
+  <h2>Steps</h2>
+  <div class="row sp"><div class="big" id="st">0</div><div class="mute">goal <input id="sgoal" type="number" inputmode="numeric" style="width:90px"></div></div>
+  <div class="bar"><i id="sbar"></i></div>
+  <div class="g2"><button class="ghost" data-s="1000">+1000</button><button class="ghost" data-s="5000">+5000</button></div>
+  <div class="row" style="margin-top:8px"><input id="sset" type="number" inputmode="numeric" placeholder="phone ke step counter se total likho"><button id="ssave">Set</button></div>
+</div>
+
+<div class="card">
+  <h2>Reminders</h2>
+  <div class="row" style="margin-bottom:8px"><span style="flex:1">Har 2 ghante khana yaad dilao</span><button id="rem">Start</button></div>
+  <div class="row"><span style="flex:1">Gym ka time</span><input type="time" id="gtime" style="width:130px"></div>
+  <div class="mute" style="margin-top:8px" id="next"></div>
+  <div class="mute" style="margin-top:6px">Gym se 45 minute pehle alag reminder aayega. Reminder tab tak chalte hain jab tak ye page khula ho.</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const DB=[[['biryani'],'Biryani',400],[['daal chawal'],'Daal chawal',420],[['paratha','parantha'],'Paratha',260],[['roti','chapati','chapathi','phulka'],'Roti',100],[['naan'],'Naan',260],[['chawal','rice'],'Chawal',220],[['daal','dal','lentil'],'Daal',180],[['omelette','omlet'],'Omelette',120],[['anda','anday','ande','egg','eggs'],'Anda',75],[['doodh','milk'],'Doodh',150],[['chai','tea'],'Chai',90],[['lassi'],'Lassi',200],[['dahi','yogurt','curd'],'Dahi',100],[['karahi'],'Karahi',350],[['chicken','murgh'],'Chicken',250],[['mutton','gosht'],'Gosht',300],[['machli','fish'],'Machli',200],[['sabzi','salan','curry'],'Sabzi/Salan',150],[['kela','banana'],'Kela',105],[['seb','apple'],'Seb',95],[['oats','daliya'],'Oats',150],[['bread','slice'],'Bread slice',80],[['protein','whey','shake'],'Protein shake',130],[['badam','almond'],'Badam',7],[['samosa'],'Samosa',260],[['burger'],'Burger',500],[['pizza'],'Pizza slice',285],[['biscuit','biscuits'],'Biscuit',50],[['roll'],'Roll',320]];
+const NUM={ek:1,one:1,do:2,two:2,teen:3,three:3,char:4,chaar:4,four:4,paanch:5,panch:5,five:5,chhe:6,six:6,aadha:.5,half:.5};
+const key=()=>new Date().toISOString().slice(0,10);
+let S={foods:[],steps:0,gym:false,goal:2200,sgoal:8000,gtime:'18:00',rem:false,next:0,gymFired:'',h:0,w:0,age:0,sex:'m',wlog:{}};
+function load(){try{const a=JSON.parse(localStorage.getItem('fit:set')||'{}');const d=JSON.parse(localStorage.getItem('fit:'+key())||'{}');S={...S,...a,...d}}catch(e){}}
+function save(){try{localStorage.setItem('fit:'+key(),JSON.stringify({foods:S.foods,steps:S.steps,gym:S.gym}));localStorage.setItem('fit:set',JSON.stringify({goal:S.goal,sgoal:S.sgoal,gtime:S.gtime,rem:S.rem,next:S.next,gymFired:S.gymFired,h:S.h,w:S.w,age:S.age,sex:S.sex,wlog:S.wlog}))}catch(e){}}
+function render(){
+  const tot=S.foods.reduce((a,f)=>a+f.k,0);
+  $('kc').textContent=tot;const left=S.goal-tot;
+  $('kleft').textContent=left>=0?left+' bache':(-left)+' zyada';
+  $('arc').style.strokeDashoffset=352*(1-Math.min(tot/S.goal,1));
+  $('arc').style.stroke=left<0?'#d62839':'var(--acc)';
+  $('goal').value=S.goal;$('sgoal').value=S.sgoal;$('gtime').value=S.gtime;$('gym').checked=S.gym;
+  $('st').textContent=S.steps.toLocaleString();$('sbar').style.width=Math.min(S.steps/S.sgoal*100,100)+'%';
+  $('empty').style.display=S.foods.length?'none':'block';
+  $('foods').innerHTML=S.foods.map((f,i)=>`<div><span>${f.q} x ${f.n}</span><span>${f.k} kcal <button class="x" data-d="${i}" aria-label="hatao">✕</button></span></div>`).join('');
+  $('h').value=S.h||'';$('w').value=S.w||'';$('age').value=S.age||'';$('sex').value=S.sex;
+  if(S.h&&S.w){const b=S.w/((S.h/100)**2);$('bmi').textContent='BMI '+b.toFixed(1)+' ('+(b<18.5?'kam':b<25?'theek':b<30?'zyada':'bohat zyada')+')'}else $('bmi').textContent='Height aur weight likho.';
+  const ks=Object.keys(S.wlog||{}).sort();
+  $('wl').innerHTML=ks.slice(-5).reverse().map(k=>`<div><span>${k}</span><span>${S.wlog[k]} kg</span></div>`).join('');
+  $('wd').textContent=ks.length>1?'Shuru se '+((S.wlog[ks[ks.length-1]]-S.wlog[ks[0]])>0?'+':'')+(S.wlog[ks[ks.length-1]]-S.wlog[ks[0]]).toFixed(1)+' kg':'';
+  $('rem').textContent=S.rem?'Stop':'Start';
+  $('next').textContent=S.rem?'Agla khana reminder: '+new Date(S.next).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'Reminders band hain.';
+  save();
+}
+let pending=[];
+function parse(text){
+  const parts=text.toLowerCase().split(/,|\+|\band\b|\baur\b|\bor\b|\bsath\b|\bwith\b|\bplus\b/).map(s=>s.trim()).filter(Boolean);
+  const miss=[];
+  parts.forEach(p=>{
+    const words=p.split(/\s+/);let q=1;
+    for(const w of words){if(/^\d+(\.\d+)?$/.test(w)){q=parseFloat(w);break}if(NUM[w]!==undefined){q=NUM[w];break}}
+    const hit=DB.find(([ks])=>ks.some(k=>words.includes(k)||p.includes(k)));
+    if(hit)S.foods.push({q,n:hit[1],k:Math.round(q*hit[2])});else miss.push({q,n:p.replace(/^\S*\d\S*\s*/,'')});
+  });
+  pending=pending.concat(miss);drawPending();render();
+  $('vmsg').textContent=parts.length?'Suna: "'+text+'"':'';
+}
+function drawPending(){
+  $('pend').innerHTML=pending.map((m,i)=>`<div class="row" style="margin-top:8px"><span style="flex:1">"${m.n}" nahi mila. Kcal?</span><input type="number" inputmode="numeric" id="pk${i}" style="width:80px"><button data-p="${i}">OK</button></div>`).join('');
+}
+$('pend').addEventListener('click',e=>{const i=e.target.dataset.p;if(i===undefined)return;const v=parseInt($('pk'+i).value);if(!v)return;const m=pending[i];S.foods.push({q:m.q,n:m.n,k:v});pending.splice(i,1);drawPending();render()});
+$('add').onclick=()=>{if($('txt').value.trim()){parse($('txt').value);$('txt').value=''}};
+$('txt').addEventListener('keydown',e=>{if(e.key==='Enter')$('add').click()});
+$('foods').addEventListener('click',e=>{const d=e.target.dataset.d;if(d===undefined)return;S.foods.splice(d,1);render()});
+// voice
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null;
+$('mic').onclick=()=>{
+  if(!SR){$('vmsg').textContent='Is browser me voice nahi chalta. Chrome use karo ya type karo.';return}
+  if(rec){rec.stop();return}
+  rec=new SR();rec.lang=$('lang').value;rec.interimResults=false;
+  rec.onstart=()=>{$('mic').classList.add('on');$('mic').textContent='🔴 Sun raha hoon... (rokne ke liye dabao)'};
+  rec.onresult=e=>parse(e.results[0][0].transcript);
+  rec.onerror=e=>{$('vmsg').textContent='Mic error: '+e.error+'. Mic permission check karo.'};
+  rec.onend=()=>{rec=null;$('mic').classList.remove('on');$('mic').textContent='🎙️ Bolo: "do roti aur daal"'};
+  try{rec.start()}catch(e){rec=null}
+};
+// settings
+$('goal').onchange=e=>{S.goal=Math.max(500,+e.target.value||2200);render()};
+$('sgoal').onchange=e=>{S.sgoal=Math.max(1000,+e.target.value||8000);render()};
+$('gtime').onchange=e=>{S.gtime=e.target.value||'18:00';render()};
+$('gym').onchange=e=>{S.gym=e.target.checked;render()};
+document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{S.steps+=+b.dataset.s;render()});
+$('ssave').onclick=()=>{const v=parseInt($('sset').value);if(v>=0){S.steps=v;$('sset').value='';render()}};
+$('bsave').onclick=()=>{const h=+$('h').value,w=+$('w').value;if(h>=50&&h<=250)S.h=h;if(w>=20&&w<=300){S.w=w;S.wlog[key()]=w}S.age=+$('age').value||S.age;S.sex=$('sex').value;render()};
+$('gsug').onclick=()=>{if(!(S.h&&S.w&&S.age)){$('bmi').textContent='Pehle height, weight aur umar save karo.';return}const bmr=10*S.w+6.25*S.h-5*S.age+(S.sex==='m'?5:-161);S.goal=Math.round((bmr*1.55+(+$('aim').value))/50)*50;render()};
+// reminders
+function notify(msg){
+  const b=$('banner');b.textContent=msg;b.style.display='block';
+  try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}
+  try{if('Notification' in window&&Notification.permission==='granted')new Notification('FitTrack',{body:msg})}catch(e){}
+}
+$('rem').onclick=async()=>{
+  S.rem=!S.rem;
+  if(S.rem){S.next=Date.now()+2*3600e3;try{if('Notification' in window&&Notification.permission==='default')await Notification.requestPermission()}catch(e){}}
+  render();
+};
+$('banner').onclick=()=>{$('banner').style.display='none'};
+setInterval(()=>{
+  const now=new Date();
+  if(S.rem&&Date.now()>=S.next){S.next=Date.now()+2*3600e3;notify('Khana khane ka time! Kuch kha lo aur voice se log karo.');render()}
+  if(S.rem){const[h,m]=S.gtime.split(':').map(Number);const g=new Date();g.setHours(h,m,0,0);const diff=(g-now)/60000;
+    if(diff<=45&&diff>0&&S.gymFired!==key()){S.gymFired=key();notify('Gym se pehle kuch halka kha lo (kela, oats ya roti).');save()}}
+},20000);
+load();render();
+
+// ---- Native (APK) support ----
+const CAP=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
+const LN=CAP?Capacitor.Plugins.LocalNotifications:null, NSR=CAP?Capacitor.Plugins.SpeechRecognition:null;
+async function schedNative(){
+  if(!LN)return;
+  try{
+    await LN.cancel({notifications:[1,2,3,4,5,6,7,8,100].map(id=>({id}))});
+    if(!S.rem)return;
+    const p=await LN.requestPermissions();
+    if(p.display!=='granted')return;
+    const list=[];let id=1;
+    for(let h=8;h<=22;h+=2)list.push({id:id++,title:'FitTrack',body:'Khana khane ka time! Kuch kha lo aur log karo.',schedule:{on:{hour:h,minute:0},allowWhileIdle:true}});
+    const[gh,gm]=S.gtime.split(':').map(Number);let t=gh*60+gm-45;if(t<0)t+=1440;
+    list.push({id:100,title:'Gym time',body:'Gym se pehle kuch halka kha lo.',schedule:{on:{hour:Math.floor(t/60),minute:t%60},allowWhileIdle:true}});
+    await LN.schedule({notifications:list});
+  }catch(e){}
+}
+if(CAP){
+  $('rem').addEventListener('click',()=>setTimeout(schedNative,600));
+  $('gtime').addEventListener('change',()=>setTimeout(schedNative,600));
+  schedNative();
+}
+if(NSR){
+  $('mic').onclick=async()=>{
+    try{
+      const p=await NSR.requestPermissions();
+      if(p.speechRecognition&&p.speechRecognition!=='granted'){$('vmsg').textContent='Mic permission do.';return}
+      const r=await NSR.start({language:$('lang').value,maxResults:1,popup:true,partialResults:false});
+      const m=r&&r.matches&&r.matches[0];
+      if(m)parse(m);
+    }catch(e){$('vmsg').textContent='Voice nahi chala. Type karke add karo.'}
+  };
+}
+</script></body></html>
